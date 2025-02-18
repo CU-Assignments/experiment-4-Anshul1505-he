@@ -1,0 +1,50 @@
+class TicketBookingSystem {
+    private static int totalSeats = 10;  // Total number of available seats
+    private static boolean[] seats = new boolean[totalSeats];  // Array to track booked seats
+
+    public static void main(String[] args) {
+        Thread vipThread1 = new Thread(new BookingTask("VIP1", true), "VIP");
+        Thread vipThread2 = new Thread(new BookingTask("VIP2", true), "VIP");
+        Thread regularThread1 = new Thread(new BookingTask("Regular1", false), "Regular");
+        Thread regularThread2 = new Thread(new BookingTask("Regular2", false), "Regular");
+
+        // Set priorities (VIP threads have higher priority)
+        vipThread1.setPriority(Thread.MAX_PRIORITY);
+        vipThread2.setPriority(Thread.MAX_PRIORITY);
+        regularThread1.setPriority(Thread.NORM_PRIORITY);
+        regularThread2.setPriority(Thread.NORM_PRIORITY);
+
+        // Start all threads
+        vipThread1.start();
+        vipThread2.start();
+        regularThread1.start();
+        regularThread2.start();
+    }
+    static class BookingTask implements Runnable {
+        private String customerName;
+        private boolean isVip;
+
+        BookingTask(String customerName, boolean isVip) {
+            this.customerName = customerName;
+            this.isVip = isVip;
+        }
+        @Override
+        public void run() {
+            bookTicket(customerName, isVip);
+        }
+        private synchronized void bookTicket(String customerName, boolean isVip) {
+            System.out.println(customerName + " trying to book a ticket...");
+
+            // Check if any seats are available
+            for (int i = 0; i < totalSeats; i++) {
+                if (!seats[i]) {
+                    // Book the seat
+                    seats[i] = true;
+                    System.out.println(customerName + " successfully booked seat " + (i + 1));
+                    return;
+                }
+            }
+            System.out.println(customerName + " failed to book a ticket. No seats available.");
+        }
+    }
+}
